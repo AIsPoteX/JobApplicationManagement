@@ -4,7 +4,11 @@ A simple job application tracking system built with Django framework for learnin
 
 ## Overview
 
-This project is a web-based application that helps users track their job application progress. It provides an intuitive interface to manage company information, application deadlines, interview dates, and application status.
+
+## <span style="color:red"> What's the next? </span>
++ Add the functionality to upload interview transcript PDF files.
++ Add the ability to increase/decrease the number of interviews.
+
 
 ## Built With
 
