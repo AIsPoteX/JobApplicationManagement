@@ -21,11 +21,11 @@ A simple job application tracking system built with Django framework for learnin
 
 This is a learning project. Feel free to fork and experiment with the code for your own educational purposes.
 
-## <span style="color:red"> What's the next? </span>
+## :exclamation: What's the next? :exclamation:
 + Add the functionality to upload interview transcript PDF files.
 + Add the ability to increase/decrease the number of interviews.
 
 ## Thanks
-+ Thanks to the MDN open-source project for its tutorials.
++ Thanks to the MDN open-source project for its tutorials. (https://github.com/mdn/django-locallibrary-tutorial.git)
 + Thanks to Mr. "Google AI Studio" for its patient guidance.
 + Thanks to Mr. "Github Copilot" for its assistive guidance.
