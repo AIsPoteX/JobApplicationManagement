@@ -6,7 +6,7 @@ A simple job application tracking system built with Django framework for learnin
 
 - **Django 5.1.10** - Python web framework
 - **SQLite** - Database (default Django database)
-- **HTML/CSS** - Frontend styling
+- **HTML** - Frontend styling
 - **Python 3.x** - Backend programming language
 
 ## Features
