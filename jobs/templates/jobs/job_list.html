@@ -1,0 +1,178 @@
+{% extends 'jobs/base.html' %}
+
+{% block content %}
+<div class="toolbar">
+    <a href="{% url 'add_job' %}" class="btn">Add</a>
+    
+    <div class="sort-links">
+        Sort by:
+        <a href="?sort=created_at" {% if current_sort == 'created_at' %}class="active"{% endif %}>Default</a>
+        <a href="?sort=application_deadline" {% if current_sort == 'application_deadline' %}class="active"{% endif %}>ES</a>
+        <a href="?sort=first_interview_date" {% if current_sort == 'first_interview_date' %}class="active"{% endif %}>First</a>
+    </div>
+</div>
+
+{% if jobs %}
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>ES</th>
+            <th>TEST</th>
+            <th>First</th>
+            <th>Second</th>
+            <th>Note</th>
+            <th>Edit</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for job in jobs %}
+        <tr class="job-row">
+            <td rowspan="2"><strong>{{ job.company_name }}</strong></td>
+            
+            <!-- 投递截至日期 -->
+            <td>
+                <form method="post" action="{% url 'update_date' %}" class="date-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="job_id" value="{{ job.id }}">
+                    <input type="hidden" name="field" value="application_deadline">
+                    <input type="date" name="date_value" 
+                           value="{% if job.application_deadline %}{{ job.application_deadline|date:'Y-m-d' }}{% endif %}"
+                           onchange="this.form.submit()" class="date-input">
+                </form>
+            </td>
+            
+            <!-- 网测截至日期 -->
+            <td>
+                <form method="post" action="{% url 'update_date' %}" class="date-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="job_id" value="{{ job.id }}">
+                    <input type="hidden" name="field" value="online_test_deadline">
+                    <input type="date" name="date_value" 
+                           value="{% if job.online_test_deadline %}{{ job.online_test_deadline|date:'Y-m-d' }}{% endif %}"
+                           onchange="this.form.submit()" class="date-input">
+                </form>
+            </td>
+            
+            <!-- 一面日期 -->
+            <td>
+                <form method="post" action="{% url 'update_date' %}" class="date-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="job_id" value="{{ job.id }}">
+                    <input type="hidden" name="field" value="first_interview_date">
+                    <input type="date" name="date_value" 
+                           value="{% if job.first_interview_date %}{{ job.first_interview_date|date:'Y-m-d' }}{% endif %}"
+                           onchange="this.form.submit()" class="date-input">
+                </form>
+            </td>
+            
+            <!-- 二面日期 -->
+            <td>
+                <form method="post" action="{% url 'update_date' %}" class="date-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="job_id" value="{{ job.id }}">
+                    <input type="hidden" name="field" value="second_interview_date">
+                    <input type="date" name="date_value" 
+                           value="{% if job.second_interview_date %}{{ job.second_interview_date|date:'Y-m-d' }}{% endif %}"
+                           onchange="this.form.submit()" class="date-input">
+                </form>
+            </td>
+            
+            <!-- 备注内容 -->
+            <td>
+                {% if job.notes %}
+                    {{ job.notes|truncatechars:20 }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            
+            <td rowspan="2">
+                <a href="{% url 'edit_job' job.id %}" class="btn btn-small">Edit</a>
+                <form method="post" action="{% url 'delete_job' job.id %}" style="display: inline;" 
+                      onsubmit="return confirm('确定要删除 {{ job.company_name }} 的记录吗？')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-small">Del</button>
+                </form>
+            </td>
+        </tr>
+        <tr class="status-row">
+            <!-- 投递状态 -->
+            <td>
+                <form method="post" action="{% url 'update_status' %}" class="status-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="job_id" value="{{ job.id }}">
+                    <input type="hidden" name="field" value="application_status">
+                    <select name="status" onchange="this.form.submit()" class="status-select">
+                        <option value="---" {% if job.application_status == '---' %}selected{% endif %}>---</option>
+                        <option value="pass" {% if job.application_status == 'pass' %}selected{% endif %}>pass</option>
+                        <option value="fail" {% if job.application_status == 'fail' %}selected{% endif %}>fail</option>
+                    </select>
+                </form>
+            </td>
+            
+            <!-- 网测状态 -->
+            <td>
+                <form method="post" action="{% url 'update_status' %}" class="status-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="job_id" value="{{ job.id }}">
+                    <input type="hidden" name="field" value="online_test_status">
+                    <select name="status" onchange="this.form.submit()" class="status-select">
+                        <option value="---" {% if job.online_test_status == '---' %}selected{% endif %}>---</option>
+                        <option value="pass" {% if job.online_test_status == 'pass' %}selected{% endif %}>pass</option>
+                        <option value="fail" {% if job.online_test_status == 'fail' %}selected{% endif %}>fail</option>
+                    </select>
+                </form>
+            </td>
+            
+            <!-- 一面状态 -->
+            <td>
+                <form method="post" action="{% url 'update_status' %}" class="status-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="job_id" value="{{ job.id }}">
+                    <input type="hidden" name="field" value="first_interview_status">
+                    <select name="status" onchange="this.form.submit()" class="status-select">
+                        <option value="---" {% if job.first_interview_status == '---' %}selected{% endif %}>---</option>
+                        <option value="pass" {% if job.first_interview_status == 'pass' %}selected{% endif %}>pass</option>
+                        <option value="fail" {% if job.first_interview_status == 'fail' %}selected{% endif %}>fail</option>
+                    </select>
+                </form>
+            </td>
+            
+            <!-- 二面状态 -->
+            <td>
+                <form method="post" action="{% url 'update_status' %}" class="status-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="job_id" value="{{ job.id }}">
+                    <input type="hidden" name="field" value="second_interview_status">
+                    <select name="status" onchange="this.form.submit()" class="status-select">
+                        <option value="---" {% if job.second_interview_status == '---' %}selected{% endif %}>---</option>
+                        <option value="pass" {% if job.second_interview_status == 'pass' %}selected{% endif %}>pass</option>
+                        <option value="fail" {% if job.second_interview_status == 'fail' %}selected{% endif %}>fail</option>
+                    </select>
+                </form>
+            </td>
+            
+            <!-- 备注结果 -->
+            <td>
+                <form method="post" action="{% url 'update_status' %}" class="status-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="job_id" value="{{ job.id }}">
+                    <input type="hidden" name="field" value="notes_result">
+                    <select name="status" onchange="this.form.submit()" class="status-select">
+                        <option value="---" {% if job.notes_result == '---' %}selected{% endif %}>---</option>
+                        <option value="pass" {% if job.notes_result == 'pass' %}selected{% endif %}>pass</option>
+                        <option value="fail" {% if job.notes_result == 'fail' %}selected{% endif %}>fail</option>
+                    </select>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p style="text-align: center; color: #666; margin-top: 50px;">
+    暂无求职记录，<a href="{% url 'add_job' %}">点击这里添加第一条记录</a>
+</p>
+{% endif %}
+{% endblock %}

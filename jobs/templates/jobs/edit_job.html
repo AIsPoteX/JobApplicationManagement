@@ -1,0 +1,55 @@
+{% extends 'jobs/base.html' %}
+
+{% block content %}
+<h2>编辑求职记录 - {{ job.company_name }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="company_name">公司名 *</label>
+        <input type="text" id="company_name" name="company_name" value="{{ job.company_name }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="notes">备注 (最多100字)</label>
+        <textarea id="notes" name="notes" maxlength="100" placeholder="输入备注信息...">{{ job.notes }}</textarea>
+    </div>
+    
+    <div class="form-group">
+        <button type="submit" class="btn">更新记录</button>
+        <a href="{% url 'job_list' %}" class="btn" style="background-color: #6c757d; margin-left: 10px;">取消</a>
+    </div>
+</form>
+
+<script>
+// 显示备注字符计数
+document.getElementById('notes').addEventListener('input', function() {
+    const maxLength = 100;
+    const currentLength = this.value.length;
+    const label = this.previousElementSibling;
+    
+    if (!label.querySelector('.char-count')) {
+        const span = document.createElement('span');
+        span.className = 'char-count';
+        span.style.color = '#666';
+        span.style.fontSize = '12px';
+        label.appendChild(span);
+    }
+    
+    const countSpan = label.querySelector('.char-count');
+    countSpan.textContent = ` (${currentLength}/${maxLength})`;
+    
+    if (currentLength > maxLength * 0.8) {
+        countSpan.style.color = '#dc3545';
+    } else {
+        countSpan.style.color = '#666';
+    }
+});
+
+// 页面加载时初始化字符计数
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('notes').dispatchEvent(new Event('input'));
+});
+</script>
+{% endblock %}
