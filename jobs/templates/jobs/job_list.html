@@ -21,7 +21,7 @@
             <th>TEST</th>
             <th>First</th>
             <th>Second</th>
-            <th>Note</th>
+            <th>Memo</th>
             <th>Edit</th>
         </tr>
     </thead>
@@ -78,19 +78,26 @@
                 </form>
             </td>
             
-            <!-- 备注内容 -->
+            <!-- 备注内容 + 已上传 PDF 链接 -->
             <td>
-                {% if job.notes %}
-                    {{ job.notes|truncatechars:20 }}
-                {% else %}
-                    -
+                <div class="note-text">
+                    {% if job.notes %}
+                        {{ job.notes|truncatechars:20 }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </div>
+                {% if job.pdf_file %}
+                    <div class="note-file" style="margin-top: 4px;">
+                        <a href="{{ job.pdf_file.url }}" target="_blank" title="{{ job.pdf_filename }}">{{ job.pdf_filename }}</a>
+                    </div>
                 {% endif %}
             </td>
             
             <td rowspan="2">
                 <a href="{% url 'edit_job' job.id %}" class="btn btn-small">Edit</a>
                 <form method="post" action="{% url 'delete_job' job.id %}" style="display: inline;" 
-                      onsubmit="return confirm('确定要删除 {{ job.company_name }} 的记录吗？')">
+                      onsubmit="return confirm('Delete {{ job.company_name }} ?')">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger btn-small">Del</button>
                 </form>
@@ -172,7 +179,7 @@
 </table>
 {% else %}
 <p style="text-align: center; color: #666; margin-top: 50px;">
-    暂无求职记录，<a href="{% url 'add_job' %}">点击这里添加第一条记录</a>
+<a href="{% url 'add_job' %}">Add first record</a>
 </p>
 {% endif %}
 {% endblock %}

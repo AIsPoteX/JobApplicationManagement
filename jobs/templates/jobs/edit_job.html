@@ -1,30 +1,50 @@
 {% extends 'jobs/base.html' %}
 
 {% block content %}
-<h2>编辑求职记录 - {{ job.company_name }}</h2>
+<h2>Edit - {{ job.company_name }}</h2>
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     
     <div class="form-group">
-        <label for="company_name">公司名 *</label>
-        <input type="text" id="company_name" name="company_name" value="{{ job.company_name }}" required>
+        <label for="{{ form.company_name.id_for_label }}">{{ form.company_name.label }} *</label>
+        {{ form.company_name }}
+        {% if form.company_name.errors %}
+            <div class="error">{{ form.company_name.errors }}</div>
+        {% endif %}
     </div>
     
     <div class="form-group">
-        <label for="notes">备注 (最多100字)</label>
-        <textarea id="notes" name="notes" maxlength="100" placeholder="输入备注信息...">{{ job.notes }}</textarea>
+        <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }} (less than 100 words)</label>
+        {{ form.notes }}
+        {% if form.notes.errors %}
+            <div class="error">{{ form.notes.errors }}</div>
+        {% endif %}
     </div>
     
     <div class="form-group">
-        <button type="submit" class="btn">更新记录</button>
-        <a href="{% url 'job_list' %}" class="btn" style="background-color: #6c757d; margin-left: 10px;">取消</a>
+        <label for="{{ form.pdf_file.id_for_label }}">{{ form.pdf_file.label }}</label>
+        {{ form.pdf_file }}
+        {% if form.pdf_file.errors %}
+            <div class="error">{{ form.pdf_file.errors }}</div>
+        {% endif %}
+        <small class="help-text">{{ form.pdf_file.help_text }}</small>
+        {% if job.pdf_file %}
+            <div class="current-file">
+                <p><a href="{{ job.pdf_file.url }}" target="_blank">{{ job.pdf_file.name }}</a></p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <button type="submit" class="btn">Refresh</button>
+        <a href="{% url 'job_list' %}" class="btn" style="background-color: #6c757d; margin-left: 10px;">Cancel</a>
     </div>
 </form>
 
 <script>
 // 显示备注字符计数
-document.getElementById('notes').addEventListener('input', function() {
+document.getElementById('{{ form.notes.id_for_label }}').addEventListener('input', function() {
     const maxLength = 100;
     const currentLength = this.value.length;
     const label = this.previousElementSibling;
@@ -49,7 +69,7 @@ document.getElementById('notes').addEventListener('input', function() {
 
 // 页面加载时初始化字符计数
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('notes').dispatchEvent(new Event('input'));
+    document.getElementById('{{ form.notes.id_for_label }}').dispatchEvent(new Event('input'));
 });
 </script>
 {% endblock %}

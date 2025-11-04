@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import JobApplication
+from .forms import JobApplicationForm
 
 def job_list(request):
     # 获取排序参数
@@ -44,7 +45,7 @@ def update_status(request):
             job.notes_result = status
         
         job.save()
-        messages.success(request, f'{job.company_name} 的状态已更新')
+        messages.success(request, f'{job.company_name} has been updated successfully.')
     
     return redirect('job_list')
 
@@ -67,48 +68,44 @@ def update_date(request):
             job.second_interview_date = date_value
         
         job.save()
-        messages.success(request, f'{job.company_name} 的日期已更新')
+        messages.success(request, f'{job.company_name} \'s date has been updated successfully.)')
     
     return redirect('job_list')
 
 def add_job(request):
     if request.method == 'POST':
-        # 获取表单数据
-        company_name = request.POST.get('company_name')
-        notes = request.POST.get('notes', '')
-        
-        # 创建新记录
-        if company_name:
-            JobApplication.objects.create(
-                company_name=company_name,
-                notes=notes
-            )
-            messages.success(request, '成功添加新的求职记录！')
+        form = JobApplicationForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'New application added successfully!')
+            return redirect('job_list')
         else:
-            messages.error(request, '公司名不能为空！')
-            
-        return redirect('job_list')
+            messages.error(request, 'form validation failed, please check your input.')
+    else:
+        form = JobApplicationForm()
     
-    return render(request, 'jobs/add_job.html')
+    return render(request, 'jobs/add_job.html', {'form': form})
 
 def edit_job(request, job_id):
     job = get_object_or_404(JobApplication, id=job_id)
     
     if request.method == 'POST':
-        # 只更新公司名和备注
-        job.company_name = request.POST.get('company_name', job.company_name)
-        job.notes = request.POST.get('notes', '')
-        
-        job.save()
-        messages.success(request, '求职记录更新成功！')
-        return redirect('job_list')
+        form = JobApplicationForm(request.POST, request.FILES, instance=job)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'New application updated successfully!')
+            return redirect('job_list')
+        else:
+            messages.error(request, 'form validation failed, please check your input.')
+    else:
+        form = JobApplicationForm(instance=job)
     
-    return render(request, 'jobs/edit_job.html', {'job': job})
+    return render(request, 'jobs/edit_job.html', {'form': form, 'job': job})
 
 def delete_job(request, job_id):
     job = get_object_or_404(JobApplication, id=job_id)
     if request.method == 'POST':
         company_name = job.company_name
         job.delete()
-        messages.success(request, f'已删除 {company_name} 的求职记录！')
+        messages.success(request, f'{company_name} has been deleted successfully.')
     return redirect('job_list')

@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.validators import FileExtensionValidator
+import os
 
 class JobApplication(models.Model):
     STATUS_CHOICES = [
@@ -8,23 +10,41 @@ class JobApplication(models.Model):
     ]
     
     # 公司名 - 必填
-    company_name = models.CharField(max_length=100, verbose_name="公司名")
+    company_name = models.CharField(max_length=100, verbose_name="Company Name")
     
     # 各个日期字段 - 可以为空
-    application_deadline = models.DateField(null=True, blank=True, verbose_name="投递截至日期")
-    online_test_deadline = models.DateField(null=True, blank=True, verbose_name="网测截至日期")
-    first_interview_date = models.DateField(null=True, blank=True, verbose_name="一面日期")
-    second_interview_date = models.DateField(null=True, blank=True, verbose_name="二面日期")
+    application_deadline = models.DateField(null=True, blank=True ,verbose_name="Application Deadline")
+    online_test_deadline = models.DateField(null=True, blank=True ,verbose_name="Online Test Deadline")
+    first_interview_date = models.DateField(null=True, blank=True ,verbose_name="First Interview Date")
+    second_interview_date = models.DateField(null=True, blank=True ,verbose_name="Second Interview Date")
     
     # 备注栏
-    notes = models.TextField(max_length=100, blank=True, verbose_name="备注")
+    notes = models.TextField(max_length=100, blank=True , verbose_name="Memo")
     
+    # PDF 文件上传
+    pdf_file = models.FileField(
+        upload_to='job_pdfs/',
+        validators=[FileExtensionValidator(['pdf'])],
+        blank=True,
+        null=True,
+        verbose_name="ES & Interview Notes",
+        help_text="Only PDF"
+
+    )
+    
+    @property
+    def pdf_filename(self):
+        if self.pdf_file and getattr(self.pdf_file, "name", ""):
+            return os.path.basename(self.pdf_file.name)
+        return ""
+    
+
     # 各环节状态 - 除了公司名
-    application_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='---', verbose_name="投递状态")
-    online_test_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='---', verbose_name="网测状态")
-    first_interview_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='---', verbose_name="一面状态")
-    second_interview_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='---', verbose_name="二面状态")
-    notes_result = models.CharField(max_length=10, choices=STATUS_CHOICES, default='---', verbose_name="备注结果")
+    application_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='---', verbose_name="Application Status")
+    online_test_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='---', verbose_name="Online Test Status")
+    first_interview_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='---', verbose_name="First Interview Status")
+    second_interview_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='---', verbose_name="Second Interview Status")
+    notes_result = models.CharField(max_length=10, choices=STATUS_CHOICES, default='---', verbose_name="Memo Result")
     
     # 记录创建时间
     created_at = models.DateTimeField(auto_now_add=True)
@@ -34,6 +54,6 @@ class JobApplication(models.Model):
         return self.company_name
     
     class Meta:
-        verbose_name = "求职申请"
-        verbose_name_plural = "求职申请"
+        verbose_name = "Application"
+        verbose_name_plural = "Applications"
         ordering = ['-created_at']
