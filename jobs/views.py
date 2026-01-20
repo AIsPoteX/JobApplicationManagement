@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from .models import JobApplication
 from .forms import JobApplicationForm
+from .services.gemini_client import GeminiAPIError, fetch_company_brief
 
 def job_list(request):
     # 获取排序参数
@@ -109,3 +111,18 @@ def delete_job(request, job_id):
         job.delete()
         messages.success(request, f'{company_name} has been deleted successfully.')
     return redirect('job_list')
+
+
+@require_POST
+def company_brief(request):
+    """Return a Gemini-generated brief for the requested company."""
+    company_name = request.POST.get('company_name', '').strip()
+    if not company_name:
+        return JsonResponse({'error': 'company_name is required.'}, status=400)
+
+    try:
+        brief = fetch_company_brief(company_name)
+    except GeminiAPIError as exc:
+        return JsonResponse({'error': str(exc)}, status=500)
+
+    return JsonResponse({'company_name': company_name, 'brief': brief})

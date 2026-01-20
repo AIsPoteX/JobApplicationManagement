@@ -8,4 +8,5 @@ urlpatterns = [
     path('delete/<int:job_id>/', views.delete_job, name='delete_job'),
     path('update-status/', views.update_status, name='update_status'),
     path('update-date/', views.update_date, name='update_date'),
+    path('company-brief/', views.company_brief, name='company_brief'),
 ]

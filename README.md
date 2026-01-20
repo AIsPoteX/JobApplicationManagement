@@ -19,11 +19,20 @@ A simple job application tracking system built with Django framework for learnin
 - ✅ Delete unwanted records
 - ✅ Clean and responsive table-based interface
 - ✅ Upload interview transcript PDF files.
+- ✅ Generate a Gemini-backed company brief for interview prep
 
 This is a learning project.
 
 ## :exclamation: What's the next? :exclamation:
 + Add the ability to increase/decrease the number of interviews.
+
+## Gemini integration
+
+1. Install the SDK: `pip install google-generativeai`
+2. Export your API key before starting the server:
+	- macOS/Linux: `export GEMINI_API_KEY="your-key"`
+	- Windows (cmd): `set GEMINI_API_KEY=your-key`
+3. Call the endpoint (POST): `/company-brief/` with form data `company_name=Acme Co` to receive a JSON brief.
 
 ## Thanks
 + Thanks to the MDN open-source project for its tutorials. (https://github.com/mdn/django-locallibrary-tutorial.git)
