@@ -6,5 +6,5 @@ class JobApplicationForm(forms.ModelForm):
         model = JobApplication
         fields = ['company_name', 'notes', 'pdf_file']
         widgets = {
-            'notes': forms.Textarea(attrs={'maxlength': 100, 'placeholder': 'input...'}),
+            'notes': forms.Textarea(attrs={'maxlength': 500, 'placeholder': 'input...'}),
         }

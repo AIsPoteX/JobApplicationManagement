@@ -33,16 +33,24 @@
             <th>Name</th>
             <th>ES</th>
             <th>TEST</th>
-            <th>First</th>
-            <th>Second</th>
-            <th>Memo</th>
-            <th>Edit</th>
+            <th>Interview</th>
+            <th class="col-memo">Memo</th>
         </tr>
     </thead>
     <tbody>
         {% for job in jobs %}
         <tr class="job-row">
-            <td rowspan="2"><strong>{{ job.company_name }}</strong></td>
+            <td rowspan="2">
+                <div><strong>{{ job.company_name }}</strong></div>
+                <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+                    <a href="{% url 'edit_job' job.id %}" class="btn btn-small">Edit</a>
+                    <form method="post" action="{% url 'delete_job' job.id %}" style="display: inline;" 
+                          onsubmit="return confirm('Delete {{ job.company_name }} ?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-small">Del</button>
+                    </form>
+                </div>
+            </td>
             
             <!-- 投递截至日期 -->
             <td>
@@ -68,7 +76,7 @@
                 </form>
             </td>
             
-            <!-- 一面日期 -->
+            <!-- 面试日期 -->
             <td>
                 <form method="post" action="{% url 'update_date' %}" class="date-form">
                     {% csrf_token %}
@@ -80,23 +88,11 @@
                 </form>
             </td>
             
-            <!-- 二面日期 -->
-            <td>
-                <form method="post" action="{% url 'update_date' %}" class="date-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="job_id" value="{{ job.id }}">
-                    <input type="hidden" name="field" value="second_interview_date">
-                    <input type="date" name="date_value" 
-                           value="{% if job.second_interview_date %}{{ job.second_interview_date|date:'Y-m-d' }}{% endif %}"
-                           onchange="this.form.submit()" class="date-input">
-                </form>
-            </td>
-            
             <!-- 备注内容 + 已上传 PDF 链接 -->
-            <td>
+            <td class="col-memo">
                 <div class="note-text">
                     {% if job.notes %}
-                        {{ job.notes|truncatechars:20 }}
+                        {{ job.notes }}
                     {% else %}
                         -
                     {% endif %}
@@ -108,14 +104,6 @@
                 {% endif %}
             </td>
             
-            <td rowspan="2">
-                <a href="{% url 'edit_job' job.id %}" class="btn btn-small">Edit</a>
-                <form method="post" action="{% url 'delete_job' job.id %}" style="display: inline;" 
-                      onsubmit="return confirm('Delete {{ job.company_name }} ?')">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-small">Del</button>
-                </form>
-            </td>
         </tr>
         <tr class="status-row">
             <!-- 投递状态 -->
@@ -146,32 +134,33 @@
                 </form>
             </td>
             
-            <!-- 一面状态 -->
+            <!-- 面试状态 -->
             <td>
-                <form method="post" action="{% url 'update_status' %}" class="status-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="job_id" value="{{ job.id }}">
-                    <input type="hidden" name="field" value="first_interview_status">
-                    <select name="status" onchange="this.form.submit()" class="status-select">
-                        <option value="---" {% if job.first_interview_status == '---' %}selected{% endif %}>---</option>
-                        <option value="pass" {% if job.first_interview_status == 'pass' %}selected{% endif %}>Pass</option>
-                        <option value="fail" {% if job.first_interview_status == 'fail' %}selected{% endif %}>Fail</option>
+                <div class="status-round-row">
+                    <form method="post" action="{% url 'update_status' %}" class="status-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="job_id" value="{{ job.id }}">
+                        <input type="hidden" name="field" value="first_interview_status">
+                        <select name="status" onchange="this.form.submit()" class="status-select">
+                            <option value="---" {% if job.first_interview_status == '---' %}selected{% endif %}>---</option>
+                            <option value="pass" {% if job.first_interview_status == 'pass' %}selected{% endif %}>Pass</option>
+                            <option value="fail" {% if job.first_interview_status == 'fail' %}selected{% endif %}>Fail</option>
+                        </select>
+                    </form>
+                    <select class="round-select" aria-label="Interview round">
+                        <option value="1st" selected>1st</option>
+                        <option value="2nd">2nd</option>
+                        <option value="3rd">3rd</option>
+                        <option value="4th">4th</option>
+                        <option value="5th">5th</option>
+                        <option value="6th">6th</option>
+                        <option value="7th">7th</option>
+                        <option value="8th">8th</option>
+                        <option value="9th">9th</option>
+                        <option value="10th">10th</option>
+                        <option value="Final">Final</option>
                     </select>
-                </form>
-            </td>
-            
-            <!-- 二面状态 -->
-            <td>
-                <form method="post" action="{% url 'update_status' %}" class="status-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="job_id" value="{{ job.id }}">
-                    <input type="hidden" name="field" value="second_interview_status">
-                    <select name="status" onchange="this.form.submit()" class="status-select">
-                        <option value="---" {% if job.second_interview_status == '---' %}selected{% endif %}>---</option>
-                        <option value="pass" {% if job.second_interview_status == 'pass' %}selected{% endif %}>Pass</option>
-                        <option value="fail" {% if job.second_interview_status == 'fail' %}selected{% endif %}>Fail</option>
-                    </select>
-                </form>
+                </div>
             </td>
             
             <!-- 备注结果 -->
@@ -251,6 +240,15 @@
         });
     }
 
+    function colorRoundSelects() {
+        document.querySelectorAll('.round-select').forEach(function(sel) {
+            sel.classList.remove('round-final');
+            if (sel.value === 'Final') {
+                sel.classList.add('round-final');
+            }
+        });
+    }
+
     async function fetchBrief() {
         const name = (input.value || '').trim();
         if (!name) {
@@ -299,8 +297,12 @@
 
     colorDateInputs();
     colorStatusSelects();
+    colorRoundSelects();
     document.querySelectorAll('.status-select').forEach(function(sel) {
         sel.addEventListener('change', colorStatusSelects);
+    });
+    document.querySelectorAll('.round-select').forEach(function(sel) {
+        sel.addEventListener('change', colorRoundSelects);
     });
 })();
 </script>

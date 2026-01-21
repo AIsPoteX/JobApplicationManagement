@@ -19,7 +19,7 @@ class JobApplication(models.Model):
     second_interview_date = models.DateField(null=True, blank=True ,verbose_name="Second Interview Date")
     
     # 备注栏
-    notes = models.TextField(max_length=100, blank=True , verbose_name="Memo")
+    notes = models.TextField(max_length=500, blank=True , verbose_name="Memo")
     
     # PDF 文件上传
     pdf_file = models.FileField(
