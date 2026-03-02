@@ -1,11 +1,14 @@
 {% extends 'jobs/base.html' %}
 
 {% block content %}
-<h2>Edit - {{ job.company_name }}</h2>
+<div class="page-head">
+    <h2>Edit - {{ job.company_name }}</h2>
+    <a href="{% url 'job_list' %}" class="btn back-btn">Back</a>
+</div>
 
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    
+
     <div class="form-group">
         <label for="{{ form.company_name.id_for_label }}">{{ form.company_name.label }} *</label>
         {{ form.company_name }}
@@ -13,29 +16,53 @@
             <div class="error">{{ form.company_name.errors }}</div>
         {% endif %}
     </div>
-    
-    <div class="form-group">
+
+    <div class="form-group memo-group">
         <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }} (less than 500 words)</label>
-        {{ form.notes }}
-        {% if form.notes.errors %}
-            <div class="error">{{ form.notes.errors }}</div>
-        {% endif %}
-    </div>
-    
-    <div class="form-group">
-        <label for="{{ form.pdf_file.id_for_label }}">{{ form.pdf_file.label }}</label>
-        {{ form.pdf_file }}
-        {% if form.pdf_file.errors %}
-            <div class="error">{{ form.pdf_file.errors }}</div>
-        {% endif %}
-        <small class="help-text">{{ form.pdf_file.help_text }}</small>
-        {% if job.pdf_file %}
-            <div class="current-file">
-                <p><a href="{{ job.pdf_file.url }}" target="_blank">{{ job.pdf_file.name }}</a></p>
+
+        <div class="memo-text-section">
+            {{ form.notes }}
+            {% if form.notes.errors %}
+                <div class="error">{{ form.notes.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="memo-attachments-section">
+            <div class="memo-divider"></div>
+            <div class="attachment-title">Files</div>
+
+            <div class="attachment-upload-row">
+                {{ form.attachments }}
+                {% if form.attachments.errors %}
+                    <div class="error">{{ form.attachments.errors }}</div>
+                {% endif %}
+                <small class="help-text">{{ form.attachments.help_text }}</small>
             </div>
-        {% endif %}
+
+            {% if attachments %}
+                <ul class="attachment-list">
+                    {% for attachment in attachments %}
+                        <li>
+                            <a href="{{ attachment.file.url }}" target="_blank" title="{{ attachment.filename }}">{{ attachment.filename }}</a>
+                            <button
+                                type="submit"
+                                class="btn btn-danger btn-small"
+                                formaction="{% url 'delete_attachment' job.id attachment.id %}"
+                                formmethod="post"
+                                formnovalidate
+                                onclick="return confirm('Delete {{ attachment.filename }} ?')"
+                            >
+                                Delete
+                            </button>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="attachment-empty">No files uploaded.</p>
+            {% endif %}
+        </div>
     </div>
-    
+
     <div class="form-group">
         <button type="submit" class="btn">Refresh</button>
         <a href="{% url 'job_list' %}" class="btn" style="background-color: #6c757d; margin-left: 10px;">Cancel</a>
@@ -43,12 +70,11 @@
 </form>
 
 <script>
-// 显示备注字符计数
 document.getElementById('{{ form.notes.id_for_label }}').addEventListener('input', function() {
     const maxLength = 500;
     const currentLength = this.value.length;
-    const label = this.previousElementSibling;
-    
+    const label = this.closest('.memo-group').querySelector('label');
+
     if (!label.querySelector('.char-count')) {
         const span = document.createElement('span');
         span.className = 'char-count';
@@ -56,10 +82,10 @@ document.getElementById('{{ form.notes.id_for_label }}').addEventListener('input
         span.style.fontSize = '12px';
         label.appendChild(span);
     }
-    
+
     const countSpan = label.querySelector('.char-count');
     countSpan.textContent = ` (${currentLength}/${maxLength})`;
-    
+
     if (currentLength > maxLength * 0.8) {
         countSpan.style.color = '#dc3545';
     } else {
@@ -67,7 +93,6 @@ document.getElementById('{{ form.notes.id_for_label }}').addEventListener('input
     }
 });
 
-// 页面加载时初始化字符计数
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('{{ form.notes.id_for_label }}').dispatchEvent(new Event('input'));
 });
